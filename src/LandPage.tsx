@@ -570,7 +570,7 @@ Button TODO
 
                             const params = new URLSearchParams({
                                 client_id: CLIENT_ID,
-                                redirect_uri: REDIRECT_URI + "/",
+                                redirect_uri: REDIRECT_URI ,
                                 response_type: "id_token",
                                 scope: "openid",
                                 nonce: nonce,
