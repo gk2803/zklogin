@@ -3,7 +3,7 @@ export const FULLNODE_URL = "https://fullnode.devnet.sui.io";
 export const CLIENT_ID =
     "649946277331-cmsolqpfq8go9gji3eaq6hkqhvgcs9fk.apps.googleusercontent.com";
 
-export const REDIRECT_URI = "http://zklogin-dun.vercel.app:3000";
+export const REDIRECT_URI = "https://zklogin-dun.vercel.app";
 
 export const SUI_DEVNET_FAUCET = 'https://faucet.devnet.sui.io/v2/gas'
 
