@@ -5,7 +5,6 @@ import { Transaction } from "@mysten/sui/transactions"
 import { useSuiClientQuery } from "@mysten/dapp-kit";
 import {
     MIST_PER_SUI,
-    normalizeSuiAddress,
     isValidSuiAddress
 } from "@mysten/sui/utils";
 import {
@@ -18,7 +17,7 @@ import {
 import GoogleLogo from "./assets/GoogleLogo.svg";
 import { useState, useEffect } from "react";
 import queryString from "query-string";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { SuiClient } from '@mysten/sui/client';
 import {
@@ -38,12 +37,10 @@ import {
     MAX_EPOCH_LOCAL_STORAGE_KEY,
     RANDOMNESS_SESSION_STORAGE_KEY,
     REDIRECT_URI,
-    STEPS_LABELS,
     SUI_DEVNET_FAUCET,
     SUI_PROVER_DEV_ENDPOINT,
     USER_SALT_LOCAL_STORAGE_KEY,
 } from "./constants";
-import { red } from "@mui/material/colors";
 
 export type PartialZkLoginSignature = Omit<
     Parameters<typeof getZkLoginSignature>["0"]["inputs"],
@@ -53,13 +50,13 @@ export type PartialZkLoginSignature = Omit<
 const suiClient = new SuiClient({ url: FULLNODE_URL });
 function LandPage() {
     // States 
-    const [executeDigest, setExecuteDigest] = useState("")
-    const [nonce, setNonce] = useState("");
+    const [_executeDigest, setExecuteDigest] = useState("")
+    const [_nonce, setNonce] = useState("");
     const [ephemeralKeyPair, setEphemeralKeyPair] = useState<Ed25519Keypair>();
-    const [currentEpoch, setCurrentEpoch] = useState("");
+    const [_currentEpoch, setCurrentEpoch] = useState("");
     const [randomness, setRandomness] = useState("");
     const [maxEpoch, setMaxEpoch] = useState(0);
-    const [jwtString, setJwtString] = useState("");
+    const [_jwtString, setJwtString] = useState("");
     const [decodedJwt, setDecodedJwt] = useState<JwtPayload>();
     const [oauthParams, setOauthParams] = useState<queryString.ParsedQuery<string>>();
     const [userSalt, setUserSalt] = useState<string>();
@@ -67,10 +64,10 @@ function LandPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [redirecting, setRedirecting] = useState(false);
     const [requestingFaucet, setRequestingFaucet] = useState(false);
-    const [extendedEphemeralPublicKey, setExtendedEphemeralPublicKey] = useState("")
+    const [_extendedEphemeralPublicKey, setExtendedEphemeralPublicKey] = useState("")
     const [zkProof, setZkProof] = useState<PartialZkLoginSignature>();
-    const [fetchingZKProof, setFetchingZKProof] = useState(false);
-    const [executingTxn, setExecutingTxn] = useState(false);
+    const [_fetchingZKProof, setFetchingZKProof] = useState(false);
+    const [_executingTxn, setExecutingTxn] = useState(false);
 
     const location = useLocation();
 
@@ -86,7 +83,9 @@ function LandPage() {
     );
 
     // reset state 
-    const resetState = () => {
+/*     
+TODO
+const resetState = () => {
         setCurrentEpoch("");
         setNonce("");
         setOauthParams(undefined);
@@ -102,8 +101,9 @@ function LandPage() {
         setFetchingZKProof(false);
         setExecutingTxn(false);
         setExecuteDigest("");
-    };
-
+    }; */
+/* 
+Button TODO
     const resetLocalState = () => {
         try {
             window.sessionStorage.clear();
@@ -117,7 +117,7 @@ function LandPage() {
                 variant: 'error'
             })
         }
-    };
+    }; */
 
     // Parse OAuth parameters from the URL
     useEffect(() => {
@@ -144,7 +144,7 @@ function LandPage() {
                 return;
             }
 
-            
+
 
         }
     }, [oauthParams]);
@@ -152,15 +152,15 @@ function LandPage() {
     /* zkproof generation */
     useEffect(() => {
 
-        if (!ephemeralKeyPair){
+        if (!ephemeralKeyPair) {
             return;
         }
 
         const extendedEphemeralPublicKey =
-                getExtendedEphemeralPublicKey(
-                    ephemeralKeyPair.getPublicKey()
-                );
-            setExtendedEphemeralPublicKey(extendedEphemeralPublicKey);
+            getExtendedEphemeralPublicKey(
+                ephemeralKeyPair.getPublicKey()
+            );
+        setExtendedEphemeralPublicKey(extendedEphemeralPublicKey);
         if (
             ephemeralKeyPair &&
             maxEpoch &&
@@ -194,7 +194,7 @@ function LandPage() {
                     enqueueSnackbar("Successfully obtain ZK Proof", {
                         variant: "success",
                     });
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
                 } catch (error: any) {
                     console.error(error);
                     enqueueSnackbar(
@@ -213,377 +213,317 @@ function LandPage() {
 
 
 
-/* persist after reload */
-useEffect(() => {
-    const privateKey = window.sessionStorage.getItem(
-        KEY_PAIR_SESSION_STORAGE_KEY
-    );
-    if (privateKey) {
-        const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(
-            privateKey
+    /* persist after reload */
+    useEffect(() => {
+        const privateKey = window.sessionStorage.getItem(
+            KEY_PAIR_SESSION_STORAGE_KEY
         );
-        setEphemeralKeyPair(ephemeralKeyPair);
-    }
-    const randomness = window.sessionStorage.getItem(
-        RANDOMNESS_SESSION_STORAGE_KEY
-    );
-    if (randomness) {
-        setRandomness(randomness);
-    }
-    const userSalt = window.localStorage.getItem(USER_SALT_LOCAL_STORAGE_KEY);
-    if (userSalt) {
-        setUserSalt(userSalt);
-    }
+        if (privateKey) {
+            const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(
+                privateKey
+            );
+            setEphemeralKeyPair(ephemeralKeyPair);
+        }
+        const randomness = window.sessionStorage.getItem(
+            RANDOMNESS_SESSION_STORAGE_KEY
+        );
+        if (randomness) {
+            setRandomness(randomness);
+        }
+        const userSalt = window.localStorage.getItem(USER_SALT_LOCAL_STORAGE_KEY);
+        if (userSalt) {
+            setUserSalt(userSalt);
+        }
 
-    const maxEpoch = window.localStorage.getItem(MAX_EPOCH_LOCAL_STORAGE_KEY);
+        const maxEpoch = window.localStorage.getItem(MAX_EPOCH_LOCAL_STORAGE_KEY);
 
-    if (maxEpoch) {
-        setMaxEpoch(Number(maxEpoch));
-    }
-}, []);
+        if (maxEpoch) {
+            setMaxEpoch(Number(maxEpoch));
+        }
+    }, []);
 
-// Requesting Balance from Faucet
-const requestFaucet = async () => {
-    if (!zkLoginUserAddress) {
-        return;
-    }
-    try {
-        setRequestingFaucet(true);
-        await axios.post(SUI_DEVNET_FAUCET, {
-            FixedAmountRequest: {
-                recipient: zkLoginUserAddress,
-            },
-        });
-        enqueueSnackbar("Success!", {
-            variant: "success",
-        });
-    } catch (error) {
-        enqueueSnackbar(String(error), {
-            variant: "error",
-        });
-    } finally {
-        setRequestingFaucet(false);
-    }
-};
+    // Requesting Balance from Faucet
+    const requestFaucet = async () => {
+        if (!zkLoginUserAddress) {
+            return;
+        }
+        try {
+            setRequestingFaucet(true);
+            await axios.post(SUI_DEVNET_FAUCET, {
+                FixedAmountRequest: {
+                    recipient: zkLoginUserAddress,
+                },
+            });
+            enqueueSnackbar("Success!", {
+                variant: "success",
+            });
+        } catch (error) {
+            enqueueSnackbar(String(error), {
+                variant: "error",
+            });
+        } finally {
+            setRequestingFaucet(false);
+        }
+    };
 
-return (
-    <Box >
-        {/* user address and balance */}
-        {isLoggedIn ? (
-            <Stack
-            >
-                <Box sx={{ p: "2px", borderRadius: 2, mt: "10px", border: '3px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                    {/* Header */}
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            fontWeight: 700,
-                            fontFamily: "'Noto Sans Mono', monospace",
-                            letterSpacing: 1,
-                            mb: 2
-                        }}
-                    >
-                        Google Account
-                    </Typography>
-
-                    <Typography
-                        sx={{
-                            fontFamily: "'Noto Sans Mono', monospace;",
-                            // highlight the address with some background color 
-                            /* bgcolor: "#FCE9C2", */
-                        }}
-                    >
-                        Address: {zkLoginUserAddress}
-                    </Typography>
-                    {addressBalance && (
-                        <Stack
-                            direction="row">
-                            <Typography>
-                                Balance:{" "}
-                                {BigNumber(addressBalance?.totalBalance)
-                                    .div(MIST_PER_SUI.toString())
-                                    .toFixed(6)}{" "}
-                                SUI
-                            </Typography>
-                            <Box sx={{ position: "relative", bottom: "4px" }}>
-                                <Button
-                                    sx={{
-                                        ml: "12px",
-                                        alignSelf: "flex-end",
-                                        /* mb: 2 */
-                                    }}
-                                    size="small"
-                                    loading={requestingFaucet}
-                                    disabled={!zkLoginUserAddress}
-                                    onClick={requestFaucet}
-                                    variant="contained"
-                                >
-                                    +10 Sui
-                                </Button>
-                            </Box>
-                        </Stack>
-                    )}
-                    <Typography
-                        sx={{ fontFamily: "'Noto Sans Mono', monospace;", }}>
-                        Network:{" Devnet"}
-                    </Typography>
-                </Box>
-                <Box sx={{ p: "2px", borderRadius: 2, mt: "10px", border: '3px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            fontWeight: 700,
-                            fontFamily: "'Noto Sans Mono', monospace",
-                            letterSpacing: 1,
-                            mb: 2
-                        }}
-                    >
-                        Send Sui
-                    </Typography>
-
-                    <form
-                        onSubmit={async (e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.currentTarget);
-                            const address = (formData.get("address") as string)?.trim();
-                            const amount = (formData.get("amount") as string)?.trim();
-
-                            // validate address
-                            if (!address) {
-                                enqueueSnackbar("Address is required.", { variant: "error" });
-                                return;
-                            }
-
-                            if (!isValidSuiAddress(address)) {
-                                enqueueSnackbar("Invalid SUI address format.", { variant: "error" });
-                                return;
-                            }
-
-                            const suiAddress = normalizeSuiAddress(address);
-
-                            // validate amount
-                            const amountNum = Number(amount);
-                            if (!Number.isFinite(amountNum) || amountNum <= 0) {
-                                enqueueSnackbar("Enter a positive amount.", { variant: "error" })
-                                return;
-                            }
-
-                            // sui to mist convertion
-                            const transactionMist = (() => {
-                                const [intPart, fracPart = ""] = amount.split(".");
-                                const frac9 = (fracPart + "000000000").slice(0, 9);
-                                return (BigInt(intPart || "0") * MIST_PER_SUI) + BigInt(frac9);
-
-                            })();
-
-
-                            // verify if transactionMist>=addressBalance
-                            if (!addressBalance) {
-                                return;
-                            }
-
-                            if (BigInt(addressBalance?.totalBalance) < transactionMist) {
-                                enqueueSnackbar(`Insufficient SUI `, { variant: "error" });
-                                return;
-                            }
-
-                            // create transaction
-                            try {
-                                if (
-                                    !ephemeralKeyPair ||
-                                    !zkProof ||
-                                    !decodedJwt ||
-                                    !userSalt
-                                ) {
-                                    enqueueSnackbar("Missing prequisites.", { variant: "error" });
-                                    console.log({ ephemeralKeyPair, zkProof, decodedJwt, userSalt });
-                                    return;
-                                }
-                                setExecutingTxn(true);
-                                const txb = new Transaction();
-                                const [coin] = txb.splitCoins(txb.gas, [transactionMist]);
-                                // transfer coins to <address>
-                                txb.transferObjects(
-                                    [coin],
-                                    address
-                                );
-
-                                
-                                txb.setSender(zkLoginUserAddress);
-
-                                // sign the transaction with the secret key of the ephemeral key
-                                const { bytes, signature: userSignature } = await txb.sign(
-                                    {
-                                        client: suiClient,
-                                        signer: ephemeralKeyPair,
-                                    }
-                                );
-
-                                if (!decodedJwt?.sub || !decodedJwt.aud) {
-                                    return;
-                                }
-
-                                // this is the seed from which the zkloginaddress is derived
-                                const addressSeed: string = genAddressSeed(
-                                    BigInt(userSalt),
-                                    "sub",
-                                    decodedJwt.sub,
-                                    decodedJwt.aud as string
-                                ).toString();
-
-                                // 
-                                const zkLoginSignature =
-                                    getZkLoginSignature({
-                                        inputs: {
-                                            ...zkProof,
-                                            addressSeed,
-                                        },
-                                        maxEpoch,
-                                        userSignature,
-                                    });
-
-                                const executeRes = await suiClient.executeTransactionBlock({
-                                    transactionBlock: bytes,
-                                    signature: zkLoginSignature
-                                });
-                                enqueueSnackbar(
-                                    `Execution successful: ${executeRes.digest}`,
-                                    {
-                                        variant: "success",
-                                    }
-                                );
-
-                                setExecuteDigest(executeRes.digest);
-
-
-                            } catch (error) {
-                                console.log(error);
-                                enqueueSnackbar(String(error), {
-                                    variant: "error"
-                                });
-                            } finally {
-                                setExecutingTxn(false);
-                            }
-                        }}
-                        style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-                    ><Box>
-                            <Typography>
-                                Send to
-                            </Typography>
-                        </Box>
-                        <input
-                            type="text"
-                            name="address"
-                            placeholder="Recipient Address"
-                            defaultValue="0xfa0f8542f256e669694624aa3ee7bfbde5af54641646a3a05924cf9e329a8a36"
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                fontSize: '16px',
-                                borderRadius: '8px',
-                                border: '1px solid #ccc'
+    return (
+        <Box >
+            {/* user address and balance */}
+            {isLoggedIn ? (
+                <Stack
+                >
+                    <Box sx={{ p: "2px", borderRadius: 2, mt: "10px", border: '3px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                        {/* Header */}
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 700,
+                                fontFamily: "'Noto Sans Mono', monospace",
+                                letterSpacing: 1,
+                                mb: 2
                             }}
-                            required
-                        />
-                        <Box>
-                            <Typography>
-                                Amount
-                            </Typography>
-                        </Box>
-                        <input
-                            type="text"
-                            name="amount"
-                            placeholder="Amount"
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                fontSize: '16px',
-                                borderRadius: '8px',
-                                border: '1px solid #ccc'
-                            }}
-                            required
-                        />
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            disabled={!zkProof }
-                            sx={{ width: '100%', mt: 1 }}
                         >
-                            Send
-                        </Button>
-                    </form>
-                </Box>
+                            Google Account
+                        </Typography>
 
-            </Stack>
-        ) : (
-            <Box
-                sx={{
-                    width: '30%',
-                    fontSize: '30px',
-                    cursor: 'pointer',
-                    backgroundColor: '#343434',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '30px',
-                    margin: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '1px',
-                }}>
-                <Button
-                    onClick={async () => {
-                        setRedirecting(true);
+                        <Typography
+                            sx={{
+                                fontFamily: "'Noto Sans Mono', monospace;",
+                                // highlight the address with some background color 
+                                /* bgcolor: "#FCE9C2", */
+                            }}
+                        >
+                            Address: {zkLoginUserAddress}
+                        </Typography>
+                        {addressBalance && (
+                            <Stack
+                                direction="row">
+                                <Typography>
+                                    Balance:{" "}
+                                    {BigNumber(addressBalance?.totalBalance)
+                                        .div(MIST_PER_SUI.toString())
+                                        .toFixed(6)}{" "}
+                                    SUI
+                                </Typography>
+                                <Box sx={{ position: "relative", bottom: "4px" }}>
+                                    <Button
+                                        sx={{
+                                            ml: "12px",
+                                            alignSelf: "flex-end",
+                                            /* mb: 2 */
+                                        }}
+                                        size="small"
+                                        loading={requestingFaucet}
+                                        disabled={!zkLoginUserAddress}
+                                        onClick={requestFaucet}
+                                        variant="contained"
+                                    >
+                                        +10 Sui
+                                    </Button>
+                                </Box>
+                            </Stack>
+                        )}
+                        <Typography
+                            sx={{ fontFamily: "'Noto Sans Mono', monospace;", }}>
+                            Network:{" Devnet"}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ p: "2px", borderRadius: 2, mt: "10px", border: '3px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontWeight: 700,
+                                fontFamily: "'Noto Sans Mono', monospace",
+                                letterSpacing: 1,
+                                mb: 2
+                            }}
+                        >
+                            Send Sui
+                        </Typography>
 
-                        // Generate ephemeral key pair 
-                        const ephemeralKeyPair = Ed25519Keypair.generate();
-                        setEphemeralKeyPair(ephemeralKeyPair);
-                        window.sessionStorage.setItem(KEY_PAIR_SESSION_STORAGE_KEY, ephemeralKeyPair.getSecretKey());
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.currentTarget);
+                                const address = (formData.get("address") as string)?.trim();
+                                const amount = (formData.get("amount") as string)?.trim();
 
-                        // fetch epoch 
-                        const { epoch } = await suiClient.getLatestSuiSystemState();
-                        const maxEpoch = Number(epoch) + 10
-                        setCurrentEpoch(epoch);
-                        setMaxEpoch(Number(epoch) + 10);
-                        window.localStorage.setItem(MAX_EPOCH_LOCAL_STORAGE_KEY, String(maxEpoch));
+                                // validate address
+                                if (!address) {
+                                    enqueueSnackbar("Address is required.", { variant: "error" });
+                                    return;
+                                }
+
+                                if (!isValidSuiAddress(address)) {
+                                    enqueueSnackbar("Invalid SUI address format.", { variant: "error" });
+                                    return;
+                                }
+
+                                /* const suiAddress = normalizeSuiAddress(address); */
+
+                                // validate amount
+                                const amountNum = Number(amount);
+                                if (!Number.isFinite(amountNum) || amountNum <= 0) {
+                                    enqueueSnackbar("Enter a positive amount.", { variant: "error" })
+                                    return;
+                                }
+
+                                // sui to mist convertion
+                                const transactionMist = (() => {
+                                    const [intPart, fracPart = ""] = amount.split(".");
+                                    const frac9 = (fracPart + "000000000").slice(0, 9);
+                                    return (BigInt(intPart || "0") * MIST_PER_SUI) + BigInt(frac9);
+
+                                })();
 
 
-                        // Generate randomness
-                        const randomness = generateRandomness();
-                        setRandomness(randomness);
-                        window.sessionStorage.setItem(RANDOMNESS_SESSION_STORAGE_KEY, randomness);
+                                // verify if transactionMist>=addressBalance
+                                if (!addressBalance) {
+                                    return;
+                                }
 
-                        // Generate nonce 
-                        const nonce = generateNonce(
-                            ephemeralKeyPair.getPublicKey(),
-                            maxEpoch,
-                            randomness
-                        );
-                        setNonce(nonce);
-                        
-                        if (!window.localStorage.getItem(USER_SALT_LOCAL_STORAGE_KEY)) {
-                            const userSalt = generateRandomness();
-                            setUserSalt(userSalt);
-                            window.localStorage.setItem(USER_SALT_LOCAL_STORAGE_KEY, userSalt);
-                        }
+                                if (BigInt(addressBalance?.totalBalance) < transactionMist) {
+                                    enqueueSnackbar(`Insufficient SUI `, { variant: "error" });
+                                    return;
+                                }
 
-                        const params = new URLSearchParams({
-                            client_id: CLIENT_ID,
-                            redirect_uri: REDIRECT_URI + "/",
-                            response_type: "id_token",
-                            scope: "openid",
-                            nonce: nonce,
-                        });
-                        const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
-                        window.location.replace(googleLoginUrl);
+                                // create transaction
+                                try {
+                                    if (
+                                        !ephemeralKeyPair ||
+                                        !zkProof ||
+                                        !decodedJwt ||
+                                        !userSalt
+                                    ) {
+                                        enqueueSnackbar("Missing prequisites.", { variant: "error" });
+                                        console.log({ ephemeralKeyPair, zkProof, decodedJwt, userSalt });
+                                        return;
+                                    }
+                                    setExecutingTxn(true);
+                                    const txb = new Transaction();
+                                    const [coin] = txb.splitCoins(txb.gas, [transactionMist]);
 
-                    }}
-                    style={{
-                        color: 'white',
+                                    // transfer coins to <address>
+                                    txb.transferObjects(
+                                        [coin],
+                                        address
+                                    );
+
+
+                                    txb.setSender(zkLoginUserAddress);
+
+                                    // sign the transaction with the secret key of the ephemeral key
+                                    const { bytes, signature: userSignature } = await txb.sign(
+                                        {
+                                            client: suiClient,
+                                            signer: ephemeralKeyPair,
+                                        }
+                                    );
+
+                                    if (!decodedJwt?.sub || !decodedJwt.aud) {
+                                        return;
+                                    }
+
+                                    // this is the seed from which the zkloginaddress is derived
+                                    const addressSeed: string = genAddressSeed(
+                                        BigInt(userSalt),
+                                        "sub",
+                                        decodedJwt.sub,
+                                        decodedJwt.aud as string
+                                    ).toString();
+
+                                    // 
+                                    const zkLoginSignature =
+                                        getZkLoginSignature({
+                                            inputs: {
+                                                ...zkProof,
+                                                addressSeed,
+                                            },
+                                            maxEpoch,
+                                            userSignature,
+                                        });
+
+                                    const executeRes = await suiClient.executeTransactionBlock({
+                                        transactionBlock: bytes,
+                                        signature: zkLoginSignature
+                                    });
+                                    enqueueSnackbar(
+                                        `Execution successful: ${executeRes.digest}`,
+                                        {
+                                            variant: "success",
+                                        }
+                                    );
+
+                                    setExecuteDigest(executeRes.digest);
+
+
+                                } catch (error) {
+                                    console.log(error);
+                                    enqueueSnackbar(String(error), {
+                                        variant: "error"
+                                    });
+                                } finally {
+                                    setExecutingTxn(false);
+                                }
+                            }}
+                            style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                        ><Box>
+                                <Typography>
+                                    Send to
+                                </Typography>
+                            </Box>
+                            <input
+                                type="text"
+                                name="address"
+                                placeholder="Recipient Address"
+                                defaultValue="0xfa0f8542f256e669694624aa3ee7bfbde5af54641646a3a05924cf9e329a8a36"
+                                style={{
+                                    width: '100%',
+                                    padding: '10px',
+                                    fontSize: '16px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #ccc'
+                                }}
+                                required
+                            />
+                            <Box>
+                                <Typography>
+                                    Amount
+                                </Typography>
+                            </Box>
+                            <input
+                                type="text"
+                                name="amount"
+                                placeholder="Amount"
+                                style={{
+                                    width: '100%',
+                                    padding: '10px',
+                                    fontSize: '16px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #ccc'
+                                }}
+                                required
+                            />
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                disabled={!zkProof}
+                                sx={{ width: '100%', mt: 1 }}
+                            >
+                                Send
+                            </Button>
+                        </form>
+                    </Box>
+
+                </Stack>
+            ) : (
+                <Box
+                    sx={{
                         width: '30%',
                         fontSize: '30px',
                         cursor: 'pointer',
                         backgroundColor: '#343434',
+                        color: 'white',
                         border: 'none',
                         borderRadius: '30px',
                         margin: '10px',
@@ -591,34 +531,95 @@ return (
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '1px',
-                    }}
-                >
-                    {redirecting ? (
-                        <>
-                            <CircularProgress size={24} sx={{ color: 'white' }} />
-                            Redirecting
-                        </>
-                    ) : (
-                        <>
-                            <img src={GoogleLogo} alt="Google Logo" style={{ width: '30px', height: '30px' }} />
-                            Login with Google
-                        </>
-                    )
-                    }
-                </Button>
-            </Box>
+                    }}>
+                    <Button
+                        onClick={async () => {
+                            setRedirecting(true);
 
-        )
+                            // Generate ephemeral key pair 
+                            const ephemeralKeyPair = Ed25519Keypair.generate();
+                            setEphemeralKeyPair(ephemeralKeyPair);
+                            window.sessionStorage.setItem(KEY_PAIR_SESSION_STORAGE_KEY, ephemeralKeyPair.getSecretKey());
 
-        }
+                            // fetch epoch 
+                            const { epoch } = await suiClient.getLatestSuiSystemState();
+                            const maxEpoch = Number(epoch) + 10
+                            setCurrentEpoch(epoch);
+                            setMaxEpoch(Number(epoch) + 10);
+                            window.localStorage.setItem(MAX_EPOCH_LOCAL_STORAGE_KEY, String(maxEpoch));
 
 
+                            // Generate randomness
+                            const randomness = generateRandomness();
+                            setRandomness(randomness);
+                            window.sessionStorage.setItem(RANDOMNESS_SESSION_STORAGE_KEY, randomness);
+
+                            // Generate nonce 
+                            const nonce = generateNonce(
+                                ephemeralKeyPair.getPublicKey(),
+                                maxEpoch,
+                                randomness
+                            );
+                            setNonce(nonce);
+
+                            if (!window.localStorage.getItem(USER_SALT_LOCAL_STORAGE_KEY)) {
+                                const userSalt = generateRandomness();
+                                setUserSalt(userSalt);
+                                window.localStorage.setItem(USER_SALT_LOCAL_STORAGE_KEY, userSalt);
+                            }
+
+                            const params = new URLSearchParams({
+                                client_id: CLIENT_ID,
+                                redirect_uri: REDIRECT_URI + "/",
+                                response_type: "id_token",
+                                scope: "openid",
+                                nonce: nonce,
+                            });
+                            const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+                            window.location.replace(googleLoginUrl);
+
+                        }}
+                        style={{
+                            color: 'white',
+                            width: '30%',
+                            fontSize: '30px',
+                            cursor: 'pointer',
+                            backgroundColor: '#343434',
+                            border: 'none',
+                            borderRadius: '30px',
+                            margin: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '1px',
+                        }}
+                    >
+                        {redirecting ? (
+                            <>
+                                <CircularProgress size={24} sx={{ color: 'white' }} />
+                                Redirecting
+                            </>
+                        ) : (
+                            <>
+                                <img src={GoogleLogo} alt="Google Logo" style={{ width: '30px', height: '30px' }} />
+                                Login with Google
+                            </>
+                        )
+                        }
+                    </Button>
+                </Box>
+
+            )
+
+            }
 
 
-    </Box >
 
 
-)
+        </Box >
+
+
+    )
 }
 
 export default LandPage

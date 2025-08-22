@@ -5,7 +5,7 @@ import {
   Tabs,
   Tab
 } from "@mui/material";
-import { useNavigate, useLocation, BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import HowItWorksPage from "./HowPage";
 import LandPage from "./LandPage";
 
