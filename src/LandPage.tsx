@@ -151,7 +151,7 @@ function LandPage() {
 
     /* zkproof generation */
     useEffect(() => {
-        
+
         if (!ephemeralKeyPair){
             return;
         }
@@ -168,8 +168,7 @@ function LandPage() {
             userSalt &&
             oauthParams?.id_token
         ) {
-            // Generate remote proof
-            //
+            // Generate proof remotely
             const fetch_proof = async () => {
                 try {
                     setFetchingZKProof(true);
