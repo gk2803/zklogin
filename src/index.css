@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+ .inputWithButton {
+  position: relative;
+}
+
+.inputWithButton input{
+    padding-right: 60px;
+} 
+
+.inputWithButton button {
+  position: absolute;
+  right: 0;
+  top : 5px;
+}
