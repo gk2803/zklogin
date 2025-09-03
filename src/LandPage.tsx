@@ -83,9 +83,9 @@ function LandPage() {
     );
 
     // reset state 
-/*     
-TODO
-const resetState = () => {
+
+
+    const resetState = () => {
         setCurrentEpoch("");
         setNonce("");
         setOauthParams(undefined);
@@ -101,9 +101,9 @@ const resetState = () => {
         setFetchingZKProof(false);
         setExecutingTxn(false);
         setExecuteDigest("");
-    }; */
-/* 
-Button TODO
+    };
+
+
     const resetLocalState = () => {
         try {
             window.sessionStorage.clear();
@@ -117,7 +117,7 @@ Button TODO
                 variant: 'error'
             })
         }
-    }; */
+    };
 
     // Parse OAuth parameters from the URL
     useEffect(() => {
@@ -143,9 +143,8 @@ Button TODO
                 console.log("Eph key not found?!");
                 return;
             }
-
-
-
+        } else {
+            console.log("No oauth params found");
         }
     }, [oauthParams]);
 
@@ -270,8 +269,34 @@ Button TODO
         <Box >
             {/* user address and balance */}
             {isLoggedIn ? (
+
                 <Stack
                 >
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignItems: "center",
+                            width: "100%",
+                            mb: 2
+                        }}
+                    >
+                        <Button
+                            sx={{
+                                ml: "12px",
+                                alignSelf: "flex-end",
+                                /* mb: 2 */
+                            }}
+                            size="small"
+                            onClick={() => {
+                                resetLocalState();
+                                setIsLoggedIn(false);
+                            }}
+                            variant="contained"
+                        >
+                            Signout
+                        </Button>
+                    </Box>
                     <Box sx={{ p: "2px", borderRadius: 2, mt: "10px", border: '3px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
                         {/* Header */}
                         <Typography
@@ -443,6 +468,7 @@ Button TODO
                                             userSignature,
                                         });
 
+
                                     const executeRes = await suiClient.executeTransactionBlock({
                                         transactionBlock: bytes,
                                         signature: zkLoginSignature
@@ -517,6 +543,7 @@ Button TODO
 
                 </Stack>
             ) : (
+                /* log in with google */
                 <Box
                     sx={{
                         width: '30%',
@@ -526,7 +553,7 @@ Button TODO
                         color: 'white',
                         border: 'none',
                         borderRadius: '30px',
-                        margin: '10px',
+                        margin: '10px auto',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -554,23 +581,24 @@ Button TODO
                             setRandomness(randomness);
                             window.sessionStorage.setItem(RANDOMNESS_SESSION_STORAGE_KEY, randomness);
 
-                            // Generate nonce 
+                            // Generate nonce  (all the above)
                             const nonce = generateNonce(
                                 ephemeralKeyPair.getPublicKey(),
                                 maxEpoch,
                                 randomness
                             );
+
                             setNonce(nonce);
 
-                            if (!window.localStorage.getItem(USER_SALT_LOCAL_STORAGE_KEY)) {
-                                const userSalt = generateRandomness();
-                                setUserSalt(userSalt);
-                                window.localStorage.setItem(USER_SALT_LOCAL_STORAGE_KEY, userSalt);
-                            }
+                            /* const userSalt = generateRandomness(); */
+                            const userSalt = "0";
+                            setUserSalt(userSalt);
+                            window.localStorage.setItem(USER_SALT_LOCAL_STORAGE_KEY, userSalt);
+
 
                             const params = new URLSearchParams({
-                                client_id: CLIENT_ID,
-                                redirect_uri: REDIRECT_URI ,
+                                client_id: CLIENT_ID, // client ID provided by google
+                                redirect_uri: REDIRECT_URI, //234321`232321`12
                                 response_type: "id_token",
                                 scope: "openid",
                                 nonce: nonce,
@@ -579,6 +607,7 @@ Button TODO
                             window.location.replace(googleLoginUrl);
 
                         }}
+
                         style={{
                             color: 'white',
                             width: '30%',
@@ -610,15 +639,8 @@ Button TODO
                 </Box>
 
             )
-
             }
-
-
-
-
         </Box >
-
-
     )
 }
 
