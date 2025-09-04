@@ -7,7 +7,7 @@ import ReactDOM from "react-dom/client";
 import theme from './theme/index.ts';
 import { BrowserRouter} from "react-router-dom";
 import './index.css';
-import App from './App.tsx';
+import App from './app/App.tsx';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const { networkConfig } = createNetworkConfig({
