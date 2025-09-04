@@ -175,13 +175,13 @@ export function useZkLogin() {
     const salt = "0";
     setUserSalt(salt);
     window.localStorage.setItem(USER_SALT_LOCAL_STORAGE_KEY, salt);
-
+    nonce;
     const url = buildGoogleAuthUrl({
       clientId: CLIENT_ID,
       redirectUri: REDIRECT_URI,
-      nonce: nonce,
+      nonce: n,
       scope: "openid",
-      responseType: "id_token",
+      responseType: "id_token", 
     });
     window.location.replace(url);
   }
